@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Customer Support</title>
+
+<style>
+body { font-family: Arial; }
+
+#chatbox {
+    width: 320px;
+    height: 420px;
+    border: 2px solid #333;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+#messages {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+#inputArea {
+    display: flex;
+}
+
+#userInput {
+    flex: 1;
+    padding: 10px;
+}
+
+button {
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+.sendBtn { background: green; color: white; }
+.voiceBtn { background: orange; color: white; }
+
+.bot { color: blue; margin: 5px 0; }
+.user { color: black; text-align: right; margin: 5px 0; }
+
+#callBtn {
+    background: red;
+    color: white;
+    text-align: center;
+    padding: 8px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="chatbox">
+    <div id="messages"></div>
+
+    <div id="inputArea">
+        <input type="text" id="userInput" placeholder="Type message...">
+        <button class="sendBtn" onclick="sendMessage()">Send</button>
+        <button class="voiceBtn" onclick="startVoice()">🎤</button>
+    </div>
+
+    <!-- Call Button -->
+    <a href="tel:+919999999999" id="callBtn">📞 Call Support</a>
+</div>
+
+<script>
+function speak(text) {
+    let speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "en-US";
+    window.speechSynthesis.speak(speech);
+}
+
+function sendMessage() {
+    let inputBox = document.getElementById("userInput");
+    let input = inputBox.value.trim();
+    if (input === "") return;
+
+    let messages = document.getElementById("messages");
+
+    messages.innerHTML += "<div class='user'>" + input + "</div>";
+
+    let reply = getBotReply(input);
+
+    setTimeout(function () {
+        messages.innerHTML += "<div class='bot'>" + reply + "</div>";
+        speak(reply); // voice reply
+        messages.scrollTop = messages.scrollHeight;
+    }, 500);
+
+    inputBox.value = "";
+}
+
+function getBotReply(input) {
+    input = input.toLowerCase();
+
+    if (input.includes("hello") || input.includes("hi")) {
+        return "Hello! Main aapki help ke liye hoon.";
+    }
+    else if (input.includes("doctor")) {
+        return "Doctor consult ke liye visit kare: https://www.safehealthexperience.com";
+    }
+    else if (input.includes("appointment")) {
+        return "Appointment book kare: https://www.safehealthexperience.com";
+    }
+    else {
+        return "Please website visit kare for more help.";
+    }
+}
+
+// Voice Input (Speech Recognition)
+function startVoice() {
+    let recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = "en-US";
+
+    recognition.start();
+
+    recognition.onresult = function(event) {
+        let text = event.results[0][0].transcript;
+        document.getElementById("userInput").value = text;
+        sendMessage();
+    };
+}
+</script>
+
+</body>
+</html>
