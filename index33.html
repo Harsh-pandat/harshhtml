@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harry AI Assistant</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:#0f172a;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+overflow:hidden;
+}
+
+.container{
+width:95%;
+max-width:1200px;
+height:92vh;
+background:#020617;
+border-radius:30px;
+overflow:hidden;
+display:flex;
+box-shadow:0 0 50px rgba(0,0,0,0.5);
+}
+
+/* LEFT */
+
+.left{
+width:38%;
+background:linear-gradient(135deg,#2563eb,#1d4ed8);
+color:white;
+padding:40px;
+display:flex;
+flex-direction:column;
+justify-content:center;
+position:relative;
+}
+
+.left h1{
+font-size:44px;
+margin-bottom:15px;
+}
+
+.left p{
+line-height:1.8;
+font-size:16px;
+opacity:0.95;
+}
+
+.circle{
+width:120px;
+height:120px;
+border-radius:50%;
+background:white;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:50px;
+margin-top:35px;
+animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+0%{
+transform:scale(1);
+box-shadow:0 0 0 0 rgba(255,255,255,0.5);
+}
+70%{
+transform:scale(1.08);
+box-shadow:0 0 0 30px rgba(255,255,255,0);
+}
+100%{
+transform:scale(1);
+}
+}
+
+/* RIGHT */
+
+.right{
+width:62%;
+display:flex;
+flex-direction:column;
+}
+
+.top{
+background:#111827;
+padding:20px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+color:white;
+}
+
+.top h2{
+font-size:24px;
+}
+
+select{
+padding:10px;
+border:none;
+border-radius:10px;
+background:#1e293b;
+color:white;
+}
+
+.chat{
+flex:1;
+padding:20px;
+overflow-y:auto;
+display:flex;
+flex-direction:column;
+gap:15px;
+background:#020617;
+}
+
+.msg{
+padding:15px;
+border-radius:15px;
+max-width:82%;
+line-height:1.7;
+font-size:14px;
+animation:fade 0.3s ease;
+}
+
+.bot{
+background:#1e293b;
+color:white;
+align-self:flex-start;
+}
+
+.user{
+background:#2563eb;
+color:white;
+align-self:flex-end;
+}
+
+@keyframes fade{
+from{
+opacity:0;
+transform:translateY(10px);
+}
+
+ to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+.input-box{
+display:flex;
+gap:10px;
+padding:15px;
+background:#111827;
+}
+
+input{
+flex:1;
+padding:16px;
+border:none;
+border-radius:12px;
+background:#1e293b;
+color:white;
+outline:none;
+font-size:14px;
+}
+
+button{
+padding:15px 18px;
+border:none;
+border-radius:12px;
+background:#2563eb;
+color:white;
+font-weight:600;
+cursor:pointer;
+}
+
+.voice-btn{
+background:#dc2626;
+}
+
+@media(max-width:900px){
+
+.container{
+flex-direction:column;
+height:96vh;
+}
+
+.left{
+width:100%;
+height:35%;
+}
+
+.right{
+width:100%;
+height:65%;
+}
+
+.left h1{
+font-size:30px;
+}
+
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- LEFT -->
+
+<div class="left">
+
+<h1>🤖 Harry AI</h1>
+
+<p>
+Your personal multilingual AI assistant.
+Harry can talk with you, help you practice English,
+correct grammar mistakes, guide you and speak automatically.
+</p>
+
+<div class="circle">
+🎤
+</div>
+
+</div>
+
+<!-- RIGHT -->
+
+<div class="right">
+
+<div class="top">
+
+<h2>Harry Voice Assistant</h2>
+
+<select id="language">
+<option value="en-US">English</option>
+<option value="hi-IN">Hindi</option>
+<option value="es-ES">Spanish</option>
+<option value="fr-FR">French</option>
+<option value="de-DE">German</option>
+</select>
+
+</div>
+
+<!-- CHAT -->
+
+<div class="chat" id="chat">
+
+<div class="msg bot">
+👋 Hello Harsh! I am Harry, your personal AI assistant.
+</div>
+
+</div>
+
+<!-- INPUT -->
+
+<div class="input-box">
+
+<input
+id="input"
+type="text"
+placeholder="Talk with Harry..."
+onkeypress="enter(event)"
+>
+
+<button onclick="sendMessage()">
+Send
+</button>
+
+<button class="voice-btn" onclick="startVoice()">
+🎤
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const chat = document.getElementById("chat");
+const synth = window.speechSynthesis;
+
+/* SPEAK */
+
+function speak(text){
+
+synth.cancel();
+
+const utterance =
+new SpeechSynthesisUtterance(text);
+
+utterance.lang =
+document.getElementById("language").value;
+
+utterance.rate = 1;
+utterance.pitch = 1;
+utterance.volume = 1;
+
+synth.speak(utterance);
+
+}
+
+/* MESSAGE */
+
+function addMessage(text,type){
+
+const div = document.createElement("div");
+
+div.classList.add("msg");
+
+if(type === "bot"){
+div.classList.add("bot");
+}else{
+div.classList.add("user");
+}
+
+div.innerHTML = text;
+
+chat.appendChild(div);
+
+chat.scrollTop = chat.scrollHeight;
+
+}
+
+/* ENGLISH CORRECTION */
+
+function correctEnglish(text){
+
+const corrections = {
+"i am fine": "I am fine.",
+"how are you": "How are you?",
+"what is your name": "What is your name?",
+"my name is harsh": "My name is Harsh.",
+"i want learn english": "I want to learn English.",
+"can you help me": "Can you help me?"
+};
+
+const lower = text.toLowerCase();
+
+if(corrections[lower]){
+return corrections[lower];
+}
+
+return null;
+
+}
+
+/* SEND */
+
+function sendMessage(){
+
+const input =
+document.getElementById("input");
+
+const text = input.value.trim();
+
+if(text === "") return;
+
+addMessage(text,"user");
+
+input.value = "";
+
+setTimeout(()=>{
+reply(text);
+},700);
+
+}
+
+/* AI REPLY */
+
+function reply(message){
+
+const corrected = correctEnglish(message);
+
+let response = "";
+
+if(corrected){
+
+response =
+"✅ Correct English: " + corrected;
+
+}
+
+else if(message.toLowerCase().includes("teach me english")){
+
+response =
+"Sure Harsh. Let's practice English together. Try saying: Hello, how are you today?";
+
+}
+
+else if(message.toLowerCase().includes("hello") || message.toLowerCase().includes("hi")){
+
+response =
+"Hello Harsh 👋 I hope your day is going great. How can I help you today?";
+
+}
+
+else if(message.toLowerCase().includes("who are you")){
+
+response =
+"I am Harry, your personal AI voice assistant.";
+
+}
+
+else if(message.toLowerCase().includes("motivate me")){
+
+response =
+"You are learning new skills every day. Keep improving and stay confident.";
+
+}
+
+else{
+
+response =
+"I understood your message. Tell me more and I will guide you.";
+
+}
+
+addMessage(response,"bot");
+
+speak(response);
+
+}
+
+/* ENTER */
+
+function enter(event){
+
+if(event.key === "Enter"){
+sendMessage();
+}
+
+}
+
+/* VOICE */
+
+function startVoice(){
+
+const SpeechRecognition =
+window.SpeechRecognition ||
+window.webkitSpeechRecognition;
+
+if(!SpeechRecognition){
+alert("Voice recognition not supported in this browser.");
+return;
+}
+
+const recognition =
+new SpeechRecognition();
+
+recognition.lang =
+document.getElementById("language").value;
+
+recognition.start();
+
+recognition.onresult = function(event){
+
+const text =
+event.results[0][0].transcript;
+
+addMessage(text,"user");
+
+reply(text);
+
+};
+
+}
+
+/* GREETING ON OPEN */
+
+window.onload = function(){
+
+setTimeout(()=>{
+
+const welcome =
+"Hello Harsh. Welcome back. I am Harry, your personal AI assistant. Let's improve your English speaking skills together.";
+
+addMessage(welcome,"bot");
+
+speak(welcome);
+
+},1500);
+
+}
+
+</script>
+
+</body>
+</html>
+```
+
